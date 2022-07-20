@@ -34,7 +34,6 @@ def create_store():
 # GET /store/<string:name>
 @app.route('/store/<string:name>')
 def get_store(name):
-    # if none match, return an error message
     for store in stores:
         if store['name'] == name:
             return jsonify(store)
@@ -52,7 +51,10 @@ def create_item(name, price):
 
 # GET /store/<string:name>/item
 @app.route('/store/<string:name>/item')
-def get_item(name):
-    pass
+def get_items_in_store(name):
+    for store in stores:
+        if store['name'] == name:
+            return jsonify({'items': store['items']})
+    return jsonify({'message': 'store not found'})
 
 app.run(port=5000)
