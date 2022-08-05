@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 
 app = Flask(__name__)
 api = Api(app)
@@ -11,6 +11,14 @@ class Items(Resource):
         return {'items': items}, 200
 
 class Item(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        'price',
+        type=float,
+        required=True,
+        help="This field cannot be left blank!"
+    )
+
     def get(self, name):
         for item in items:
             if item['name'] == name:
@@ -21,7 +29,7 @@ class Item(Resource):
         for item in items:
             if item['name'] == name:
                 return {'message': f'An item with {name} already exists.'}, 400
-        data = request.get_json()
+        data = Item.parser.parse_args()
         item = {
             'name': name,
             'price': data['price']
@@ -30,7 +38,7 @@ class Item(Resource):
         return item, 201
 
     def put(self, name):
-        data = request.get_json()
+        data = Item.parser.parse_args()
         for item in items:
             if item['name'] != name:
                 item = {
