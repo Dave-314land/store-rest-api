@@ -14,10 +14,13 @@ class Item(Resource):
     def get(self, name):
         for item in items:
             if item['name'] == name:
-              return item
+              return {'item': item}, 200
         return {'item': None}, 404
     
     def post(self, name):
+        for item in items:
+            if item['name'] == name:
+                return {'message': f'An item with {name} already exists.'}, 400
         data = request.get_json()
         item = {
             'name': name,
@@ -25,6 +28,24 @@ class Item(Resource):
         }
         items.append(item)
         return item, 201
+
+    def put(self, name):
+        data = request.get_json()
+        for item in items:
+            if item['name'] != name:
+                item = {
+                    'name': name,
+                    'price': data['price']
+                }
+                items.append(item)
+            else:
+                item.update(data)
+            return item
+    
+    def delete(self, name):
+        global items
+        items = list(filter(lambda x:x['name'] != name, items))
+        return {'message': 'item deleted'}
 
 api.add_resource(Items, '/items') # http://127.0.0.1:5000/items
 api.add_resource(Item, '/item/<string:name>') # http://127.0.0.1:5000/item/apple
