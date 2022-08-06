@@ -1,6 +1,24 @@
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api, reqparse
 
+""" # Running only once to create data for testing
+import sqlite3
+con = sqlite3.connect('data.db')
+cur = con.cursor()
+
+create_table = "CREATE TABLE if not exists users (id int, username text, password text)"
+cur.execute(create_table)
+users = [
+    (1, 'Dave', 'qwerty'),
+    (2, 'Bob', 'asdfgh'),
+    (3, 'John', 'zxcvbn')
+]
+
+insert_query = "INSERT INTO users VALUES (?, ?, ?)"
+cur.executemany(insert_query, users)
+con.commit()
+"""
+
 app = Flask(__name__)
 api = Api(app)
 
