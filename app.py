@@ -1,7 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api, reqparse
+from flask_jwt import JWT, jwt_required
+from security import authenticate, identity
 
-""" # Running only once to create data for testing
+from decouple import config
+API_JWT_SECRET_KEY = config('JWT_SECRET_KEY')
+
+
+ # Running only once to create data for testing
 import sqlite3
 con = sqlite3.connect('data.db')
 cur = con.cursor()
@@ -17,10 +23,14 @@ users = [
 insert_query = "INSERT INTO users VALUES (?, ?, ?)"
 cur.executemany(insert_query, users)
 con.commit()
-"""
+
 
 app = Flask(__name__)
+app.secret_key = API_JWT_SECRET_KEY
 api = Api(app)
+
+jwt = JWT(app, authenticate, identity)
+
 
 items = []
 
@@ -37,6 +47,7 @@ class Item(Resource):
         help="This field cannot be left blank!"
     )
 
+    @jwt_required()
     def get(self, name):
         for item in items:
             if item['name'] == name:
