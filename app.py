@@ -2,35 +2,16 @@ from flask import Flask, jsonify, request
 from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 from security import authenticate, identity
+from user import UserRegister
 
 from decouple import config
 API_JWT_SECRET_KEY = config('JWT_SECRET_KEY')
-
-
- # Running only once to create data for testing
-import sqlite3
-con = sqlite3.connect('data.db')
-cur = con.cursor()
-
-create_table = "CREATE TABLE if not exists users (id int, username text, password text)"
-cur.execute(create_table)
-users = [
-    (1, 'Dave', 'qwerty'),
-    (2, 'Bob', 'asdfgh'),
-    (3, 'John', 'zxcvbn')
-]
-
-insert_query = "INSERT INTO users VALUES (?, ?, ?)"
-cur.executemany(insert_query, users)
-con.commit()
-
 
 app = Flask(__name__)
 app.secret_key = API_JWT_SECRET_KEY
 api = Api(app)
 
 jwt = JWT(app, authenticate, identity)
-
 
 items = []
 
@@ -86,6 +67,7 @@ class Item(Resource):
 
 api.add_resource(Items, '/items') # http://127.0.0.1:5000/items
 api.add_resource(Item, '/item/<string:name>') # http://127.0.0.1:5000/item/apple
+api.add_resource(UserRegister, '/register') # http://127.0.0.1:5000/register
 
 """
 stores = [
