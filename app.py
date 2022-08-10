@@ -12,7 +12,6 @@ API_JWT_SECRET_KEY = config('JWT_SECRET_KEY')
 app = Flask(__name__)
 app.secret_key = API_JWT_SECRET_KEY
 api = Api(app)
-
 jwt = JWT(app, authenticate, identity)
 
 api.add_resource(Items, '/items') # http://127.0.0.1:5000/items

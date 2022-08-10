@@ -5,13 +5,6 @@ from flask_jwt import jwt_required
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        'name',
-        type=str,
-        required=True,
-        help="Item name cannot be left blank!"
-    )
-    parser = reqparse.RequestParser()
-    parser.add_argument(
         'price',
         type=float,
         required=True,
@@ -20,6 +13,13 @@ class Item(Resource):
 
     @jwt_required()
     def get(self, name):
+        item = self.find_by_item_name(name)
+        if item:
+            return item
+        return {"message": "Item not found"}, 404
+
+    @classmethod
+    def find_by_item_name(cls, name):
         con = sqlite3.connect('data.db')
         cur = con.cursor()
 
@@ -31,19 +31,24 @@ class Item(Resource):
         
         if row:
             return {"item": {'name': row[0], 'price': row[1]}}, 200
-        return {"message": "Item not found"}, 404
-         
+
     def post(self, name):
-        for item in items:
-            if item['name'] == name:
-                return {'message': f'An item with {name} already exists.'}, 400
         data = Item.parser.parse_args()
-        item = {
-            'name': name,
-            'price': data['price']
-        }
-        items.append(item)
-        return item, 201
+        item = {'name': name, 'price': data['price']}
+
+        if self.find_by_item_name(name):
+            return {"message": f"An item with the name, '{name}', already exists."}, 400
+        else:
+            con = sqlite3.connect('data.db')
+            cur = con.cursor()
+
+            query = "INSERT INTO items VALUES (?, ?)"
+            cur.execute(query, (item['name'], item['price'],))
+            
+            con.commit()
+            con.close()
+
+            return {"message": f"Item with the name, '{item['name']}', created successfully."}, 201
 
     def put(self, name):
         data = Item.parser.parse_args()

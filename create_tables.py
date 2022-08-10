@@ -9,8 +9,5 @@ create_table_items = "CREATE TABLE if not exists items (item_name text, price re
 cur.execute(create_table_users)
 cur.execute(create_table_items)
 
-# Test data - delete later
-cur.execute("INSERT INTO items VALUES ('test_item', 10.99)")
-
 con.commit()
 con.close()
