@@ -66,15 +66,22 @@ class Item(Resource):
     def delete(self, name):
         con = sqlite3.connect('data.db')
         cur = con.cursor()
-
         query = "DELETE FROM items WHERE item_name=?"
         cur.execute(query, (name,))
-            
         con.commit()
         con.close()
-
         return {"message": f"{name} has been deleted successfully."}, 200
 
 class Items(Resource):
     def get(self):
-        return {'items': items}, 200
+        con = sqlite3.connect('data.db')
+        cur = con.cursor()
+        query = "SELECT * FROM items"
+        result = cur.execute(query)
+        items = []
+        for row in result:
+            items.append({'name': row[0], 'price': row[1]})
+        con.close()
+        if items:
+            return {"items": items}, 200
+        return {"message": "No items found."}, 404
