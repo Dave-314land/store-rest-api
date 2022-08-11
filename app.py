@@ -4,8 +4,8 @@ from flask_jwt import JWT
 from decouple import config
 
 from security import authenticate, identity
-from user import UserRegister
-from item import Items, Item
+from resources.user import UserRegister
+from resources.item import Items, Item
 
 
 API_JWT_SECRET_KEY = config('JWT_SECRET_KEY')
