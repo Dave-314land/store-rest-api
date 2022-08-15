@@ -1,7 +1,13 @@
 import sqlite3
+from db import db
 
+class ItemModel(db.Model):
+    __tablename__ = "items"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(80))
+    price = db.Column(db.Float(precision=2))
 
-class ItemModel:
     def __init__(self, item_name, price):
         self.name = item_name
         self.price = price
