@@ -6,15 +6,17 @@ from decouple import config
 from security import authenticate, identity
 from resources.user import UserRegister
 from resources.item import Items, Item
-from db import db
 
 API_JWT_SECRET_KEY = config('JWT_SECRET_KEY')
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = API_JWT_SECRET_KEY
+
 api = Api(app)
+
 jwt = JWT(app, authenticate, identity) #/auth
-db.init_app(app)
 
 api.add_resource(Items, '/items') # http://127.0.0.1:5000/items
 api.add_resource(Item, '/item/<string:name>') # http://127.0.0.1:5000/item/apple
@@ -86,4 +88,6 @@ def get_items_in_store(name):
 """
 
 if __name__ == '__main__':
+    from db import db
+    db.init_app(app)
     app.run(debug=True, port=5000)

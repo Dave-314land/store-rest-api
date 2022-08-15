@@ -1,5 +1,5 @@
-import sqlite3
 from db import db
+
 
 class ItemModel(db.Model):
     __tablename__ = "items"
@@ -9,19 +9,24 @@ class ItemModel(db.Model):
     price = db.Column(db.Float(precision=2))
 
     def __init__(self, item_name, price):
-        self.name = item_name
+        self.item_name = item_name
         self.price = price
     
     def json(self):
-        return {'name': self.name, 'price': self.price}
+        return {'name': self.item_name, 'price': self.price}
 
     @classmethod
     def find_by_item_name(cls, name):
-        con = sqlite3.connect('data.db')
-        cur = con.cursor()
-        query = "SELECT * FROM items WHERE item_name = ?"
-        result = cur.execute(query, (name,))
-        row = result.fetchone()
-        con.close()
-        if row:
-            return cls(*row)
+        return cls.query.filter_by(item_name=name).first()
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def find_all_items(cls):
+        return cls.query.all()
