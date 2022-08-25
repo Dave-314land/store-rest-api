@@ -1,5 +1,5 @@
-import sqlite3
 from db import db
+
 
 class UserModel(db.Model):
     __tablename__ = 'users'
@@ -8,39 +8,18 @@ class UserModel(db.Model):
     username = db.Column(db.String(80))
     password = db.Column(db.String(80))
 
-    def __init__(self, _id, username, password):
-        self.id = _id
+    def __init__(self, username, password):
         self.username = username
         self.password = password
 
     @classmethod
     def find_by_username(cls, username):
-        con = sqlite3.connect('data.db')
-        cur = con.cursor()
-
-        query = "SELECT * FROM users WHERE username = ?"
-        result = cur.execute(query, (username,))
-        row = result.fetchone()
-        if row:
-            user = cls(*row)
-        else:
-            user = None
+        return cls.query.filter_by(username=username).first()
         
-        con.close()
-        return user
-    
     @classmethod
     def find_by_id(cls, _id):
-        con = sqlite3.connect('data.db')
-        cur = con.cursor()
+        return cls.query.filter_by(id=_id).first()
 
-        query = "SELECT * FROM users WHERE id = ?"
-        result = cur.execute(query, (_id,))
-        row = result.fetchone()
-        if row:
-            user = cls(*row)
-        else:
-            user = None
-        
-        con.close()
-        return user
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
