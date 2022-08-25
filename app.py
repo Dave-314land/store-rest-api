@@ -4,6 +4,7 @@ from flask_jwt import JWT
 from decouple import config
 
 from security import authenticate, identity
+from db import db
 from resources.user import UserRegister
 from resources.item import Items, Item
 
@@ -15,6 +16,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = API_JWT_SECRET_KEY
 
 api = Api(app)
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 
 jwt = JWT(app, authenticate, identity) #/auth
 
@@ -88,6 +94,5 @@ def get_items_in_store(name):
 """
 
 if __name__ == '__main__':
-    from db import db
     db.init_app(app)
     app.run(debug=True, port=5000)
