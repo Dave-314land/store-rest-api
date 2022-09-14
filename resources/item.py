@@ -12,6 +12,14 @@ class Item(Resource):
         help="Item price cannot be left blank!"
     )
 
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        'store_id',
+        type=int,
+        required=True,
+        help="Please provide a store id."
+    )
+
     @jwt_required()
     def get(self, name):
         item = ItemModel.find_by_item_name(name)
@@ -25,7 +33,7 @@ class Item(Resource):
             return {"message": f"An item with the name, '{name}', already exists."}, 400
 
         data = self.parser.parse_args()
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, **data)
         
         item.save_to_db()
         return {"message": f"Item with the name, '{name}', created successfully."}, 201
@@ -39,7 +47,7 @@ class Item(Resource):
             item.save_to_db()
             return {"message": f"The price for {name} was updated successfully."}, 200
         else:
-            item = ItemModel(name, data['price'])
+            item = ItemModel(name, **data)
             item.save_to_db()
             return {"message": f"Item with the name, '{name}', created successfully."}, 201
     
