@@ -11,8 +11,6 @@ class Item(Resource):
         required=True,
         help="Item price cannot be left blank!"
     )
-
-    parser = reqparse.RequestParser()
     parser.add_argument(
         'store_id',
         type=int,
@@ -28,11 +26,12 @@ class Item(Resource):
         return {"message": "Item not found"}, 404
 
     def post(self, name):
-        item = ItemModel.find_by_item_name(name)
-        if item:
+        if ItemModel.find_by_item_name(name):
             return {"message": f"An item with the name, '{name}', already exists."}, 400
 
-        data = self.parser.parse_args()
+        data = Item.parser.parse_args()
+
+        print(data)
         item = ItemModel(name, **data)
         
         item.save_to_db()
@@ -64,7 +63,7 @@ class Items(Resource):
         items = []
         if result:
             for row in result:
-                items.append({'name': row.item_name, 'price': row.price})
+                items.append({'name': row.item_name, 'price': row.price, 'store_id': row.store_id})
         if items:
             return {"items": items}, 200
         return {"message": "No items found."}, 404
